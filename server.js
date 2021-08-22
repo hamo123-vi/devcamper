@@ -5,11 +5,11 @@ const logger = require('morgan')
 const errorHandler = require('./middleware/error')
 const connectDB = require('./config/db')
 
+//Load env variables
+
+dotenv.config({ path : './config/config.env'})
 //Load routes
 const bootcamps = require('./routes/bootcamps')
-
-//Load env variables
-dotenv.config({ path : './config/config.env'})
 
 //Initializing app
 const app = express()
