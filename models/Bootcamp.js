@@ -76,11 +76,7 @@ const BootcampSchema = new mongoose.Schema({
           ]
       },
 
-      averageRating: {
-          type: Number,
-          min: [1, 'Minimal value of this field is 1'],
-          max: [10, 'Maximal value of this field is 10']
-      },
+      averageRating: Number,
 
       averageCost: Number,
 
@@ -90,21 +86,6 @@ const BootcampSchema = new mongoose.Schema({
       },
 
       housing: {
-          type: Boolean,
-          default: false
-      },
-
-      housing: {
-        type: Boolean,
-        default: false
-    },
-
-      housing: {
-        type: Boolean,
-        default: false
-    },
-
-      housing: {
         type: Boolean,
         default: false
     },
@@ -112,8 +93,17 @@ const BootcampSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
 
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        required: true
+    }
+},
+{
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true}
 });
 
 //Creating slug from name
@@ -136,6 +126,28 @@ BootcampSchema.pre('save', async function(next) {
     }
     this.address = undefined
     next()
+})
+
+//Reverse populate with virtuals
+
+BootcampSchema.virtual('courses', {
+    ref: 'Course',
+    localField: '_id',
+    foreignField: 'bootcamp',
+    justOne: false
+});
+
+BootcampSchema.virtual('reviews', {
+    ref: 'Review',
+    localField: '_id',
+    foreignField: 'bootcamp',
+    justOne: false
+});
+
+//Cascade delete courses before delete their bootcamp
+BootcampSchema.pre('remove', async function(next) {
+    await this.model('Course').deleteMany({ bootcamp: this._id});
+    next();
 })
 
 
